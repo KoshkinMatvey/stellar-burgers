@@ -67,7 +67,7 @@ type TFeedsResponse = TServerResponse<{
   totalToday: number;
 }>;
 
-export type TOrdersResponse = TServerResponse<{
+type TOrdersResponse = TServerResponse<{
   data: TOrder[];
 }>;
 

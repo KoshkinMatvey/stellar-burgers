@@ -1,21 +1,17 @@
 import { FC, SyntheticEvent, useState } from 'react';
 import { RegisterUI } from '@ui-pages';
-import { useAppDispatch } from '@app-store';
-import { getName, register } from '@slices';
+import { useDispatch } from '../../services/store';
+import { registerUser } from '../../services/authUserSlice';
 
 export const Register: FC = () => {
-  const dispatch = useAppDispatch();
   const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const dispatch = useDispatch();
 
   const handleSubmit = (e: SyntheticEvent) => {
     e.preventDefault();
-    if (!userName || !email || !password) {
-      alert('Заполни все поля');
-      return;
-    }
-    dispatch(register({ email, name: userName, password }));
+    dispatch(registerUser({ name: userName, password, email }));
   };
 
   return (

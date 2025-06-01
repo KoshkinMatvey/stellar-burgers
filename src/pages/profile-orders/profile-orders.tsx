@@ -1,21 +1,24 @@
-import { useAppDispatch, useAppSelector } from '@app-store';
-import { getUserOrders, userOrdersThunk, isLoading } from '@slices';
-import { Preloader } from '@ui';
 import { ProfileOrdersUI } from '@ui-pages';
 import { TOrder } from '@utils-types';
-import { FC, useEffect } from 'react';
+import { FC } from 'react';
+import { useSelector } from '../../services/store';
+import { useDispatch } from '../../services/store';
+import { selectorOrders, getOrders } from '../../services/ordersSlice';
+import { useEffect } from 'react';
+import { Preloader } from '@ui';
 
 export const ProfileOrders: FC = () => {
-  const dispatch = useAppDispatch();
-  const orders: TOrder[] = useAppSelector(getUserOrders);
-  const isDataSucces: boolean = useAppSelector(isLoading);
+  /** TODO: взять переменную из стора */
+  const orders: TOrder[] = useSelector(selectorOrders);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(userOrdersThunk());
-  }, []);
+    dispatch(getOrders());
+  }, [dispatch]);
 
-  if (isDataSucces) {
+  if (!orders.length) {
     return <Preloader />;
   }
+
   return <ProfileOrdersUI orders={orders} />;
 };

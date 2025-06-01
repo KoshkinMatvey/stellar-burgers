@@ -1,7 +1,7 @@
 {
-    "success":true,
-    "user":{
-        "email":"korablev-vm@gmail.com",
-        "name":"korablev-vm"
+    "sucess": true,
+    "user": {
+        "email": "test@mail.ru",
+        "name": "Dmitriy"
     }
 }

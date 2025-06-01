@@ -11,122 +11,114 @@ import {
 } from '@pages';
 import '../../index.css';
 import styles from './app.module.css';
-import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
-
-import {
-  AppHeader,
-  IngredientDetails,
-  Modal,
-  OrderInfo,
-  ProtectedRouter
-} from '@components';
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { ProtectedRoute } from '../../protectedRoutes';
 import { useEffect } from 'react';
-import { useAppDispatch } from '@app-store';
-import { FeedsThunk, getUser, IngredientsThunk, setUserCheck } from '@slices';
+import { useDispatch } from '../../services/store';
+import { getUser } from '../../services/authUserSlice';
+
+import { AppHeader, IngredientDetails, Modal, OrderInfo } from '@components';
+import { getIngredients } from '../../services/ingredientsSlice';
 
 const App = () => {
-  const dispatch = useAppDispatch();
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const location = useLocation();
   const backgroundLocation = location.state?.background;
-  const navigate = useNavigate();
 
   useEffect(() => {
-    dispatch(IngredientsThunk());
-    dispatch(FeedsThunk());
-    dispatch(getUser())
-      .unwrap()
-      .catch(() => {})
-      .finally(() => dispatch(setUserCheck()));
+    dispatch(getIngredients());
+    dispatch(getUser());
   }, []);
 
-  const handleOnClose = (): void => {
+  const closeModal = () => {
     navigate(-1);
   };
+
   return (
     <div className={styles.app}>
       <AppHeader />
       <Routes location={backgroundLocation || location}>
-        <Route path='*' element={<NotFound404 />} />
         <Route path='/' element={<ConstructorPage />} />
         <Route path='/feed' element={<Feed />} />
-        <Route path='/feed/:number' element={<OrderInfo />} />
-        <Route path='/ingredients/:id' element={<IngredientDetails />} />
-        <Route path='/profile/orders/:number' element={<OrderInfo />} />
         <Route
           path='/login'
           element={
-            <ProtectedRouter isPublic>
+            <ProtectedRoute onlyUnAuth>
               <Login />
-            </ProtectedRouter>
-          }
-        />
-        <Route
-          path='/profile'
-          element={
-            <ProtectedRouter>
-              <Profile />
-            </ProtectedRouter>
+            </ProtectedRoute>
           }
         />
         <Route
           path='/register'
           element={
-            <ProtectedRouter isPublic>
+            <ProtectedRoute onlyUnAuth>
               <Register />
-            </ProtectedRouter>
+            </ProtectedRoute>
           }
         />
         <Route
           path='/forgot-password'
           element={
-            <ProtectedRouter isPublic>
+            <ProtectedRoute onlyUnAuth>
               <ForgotPassword />
-            </ProtectedRouter>
+            </ProtectedRoute>
           }
         />
         <Route
           path='/reset-password'
           element={
-            <ProtectedRouter>
+            <ProtectedRoute onlyUnAuth>
               <ResetPassword />
-            </ProtectedRouter>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/profile'
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
           }
         />
         <Route
           path='/profile/orders'
           element={
-            <ProtectedRouter>
+            <ProtectedRoute>
               <ProfileOrders />
-            </ProtectedRouter>
+            </ProtectedRoute>
           }
         />
+        <Route path='*' element={<NotFound404 />} />
+        <Route path='/feed/:number' element={<OrderInfo />} />
+        <Route path='/ingredients/:id' element={<IngredientDetails />} />
+        <Route path='/profile/orders/:number' element={<OrderInfo />} />
       </Routes>
+
       {backgroundLocation && (
         <Routes>
           <Route
-            path='/ingredients/:id'
+            path='/feed/:number'
             element={
-              <Modal title={'Ингридиент'} onClose={handleOnClose}>
-                <IngredientDetails />
+              <Modal title='Детали заказа' onClose={closeModal}>
+                <OrderInfo />
               </Modal>
             }
           />
           <Route
-            path='/feed/:number'
+            path='/ingredients/:id'
             element={
-              <Modal title={'Заказ'} onClose={handleOnClose}>
-                <OrderInfo />
+              <Modal title='Детали ингредиента' onClose={closeModal}>
+                <IngredientDetails />
               </Modal>
             }
           />
           <Route
             path='/profile/orders/:number'
             element={
-              <ProtectedRouter>
-                <Modal title={'Заказ'} onClose={handleOnClose}>
-                  <OrderInfo />
-                </Modal>
-              </ProtectedRouter>
+              <Modal title='Детали заказа' onClose={closeModal}>
+                <OrderInfo />
+              </Modal>
             }
           />
         </Routes>

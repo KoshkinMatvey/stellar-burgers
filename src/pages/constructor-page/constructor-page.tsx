@@ -1,14 +1,18 @@
-import { useAppSelector, useAppDispatch } from '@app-store';
-import { IngredientsThunk, ingredientsIsLoading } from '@slices';
+import { useSelector } from '../../services/store';
+import { selectorIngredientsStatus } from '../../services/ingredientsSlice';
+
 import styles from './constructor-page.module.css';
 
 import { BurgerIngredients } from '../../components';
 import { BurgerConstructor } from '../../components';
 import { Preloader } from '../../components/ui';
-import { FC, useEffect } from 'react';
+import { FC } from 'react';
+import { RequestStatus } from '@utils-types';
 
 export const ConstructorPage: FC = () => {
-  const isIngredientsLoading = useAppSelector(ingredientsIsLoading);
+  /** TODO: взять переменную из стора */
+  const ingredientsStatus = useSelector(selectorIngredientsStatus);
+  const isIngredientsLoading = ingredientsStatus === RequestStatus.Loading;
 
   return (
     <>

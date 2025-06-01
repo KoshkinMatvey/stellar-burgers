@@ -1,41 +1,51 @@
 import { FC, useMemo } from 'react';
-import { TConstructorIngredient } from '@utils-types';
+import { RequestStatus, TConstructorIngredient } from '@utils-types';
 import { BurgerConstructorUI } from '@ui';
-import { useAppDispatch, useAppSelector } from '@app-store';
+import { useSelector } from 'react-redux';
+import { useDispatch } from '../../services/store';
 import {
-  BuyBurgerThunk,
-  clearConstructor,
-  getConstructorIngredients,
-  getName,
-  getOrderData,
-  getStatusBuyBurger
-} from '@slices';
+  selectorOrder,
+  selectorOrderStatus,
+  selectorOrderModalData,
+  orderBurger,
+  resetOrder
+} from '../../services/constructorSlice';
+import { selectorUserData } from '../../services/authUserSlice';
 import { useNavigate } from 'react-router-dom';
 
 export const BurgerConstructor: FC = () => {
-  const dispatch = useAppDispatch();
+  /** TODO: взять переменные constructorItems, orderRequest и orderModalData из стора */
+  const dispatch = useDispatch();
   const navigate = useNavigate();
-  const constructorItems = useAppSelector(getConstructorIngredients);
-  const orderRequest = useAppSelector(getStatusBuyBurger);
-  const userName = useAppSelector(getName);
-  const orderModalData = useAppSelector(getOrderData);
+
+  const isUserLoggedIn = useSelector(selectorUserData);
+  const constructorItems = useSelector(selectorOrder);
+  const orderRequest =
+    useSelector(selectorOrderStatus) === RequestStatus.Loading;
+  const orderModalData = useSelector(selectorOrderModalData);
 
   const onOrderClick = () => {
-    if (!userName) {
-      navigate('/login');
-      return;
+    if (!isUserLoggedIn) {
+      return navigate('/login');
+    } else if (
+      constructorItems.bun?._id &&
+      constructorItems.ingredients.length
+    ) {
+      const ingredientsIds = constructorItems.ingredients.map(
+        (item) => item._id
+      );
+      dispatch(
+        orderBurger([
+          constructorItems.bun._id,
+          ...ingredientsIds,
+          constructorItems.bun._id
+        ])
+      );
     }
-    if (!constructorItems.bun || orderRequest) return;
-    dispatch(
-      BuyBurgerThunk([
-        constructorItems.bun._id,
-        ...constructorItems.ingredients.map((ingredient) => ingredient._id),
-        constructorItems.bun._id
-      ])
-    );
   };
+
   const closeOrderModal = () => {
-    dispatch(clearConstructor());
+    dispatch(resetOrder());
   };
 
   const price = useMemo(
